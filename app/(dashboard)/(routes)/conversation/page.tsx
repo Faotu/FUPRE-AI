@@ -27,10 +27,38 @@ const ConversationPage = () => {
 
   const isLoading = form.formState.isSubmitting;
 
+  // const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  //   try {
+  //     const userMessage: ChatCompletionRequestMessage = {
+  //       role: "user",
+  //       content: values.prompt,
+  //     };
+
+  //     const newMessages = [...messages, userMessage];
+
+  //     const response = await axios.post("/api/conversation", {
+  //       messages: newMessages,
+  //     });
+
+  //     setMessages((current) => [...current, userMessage, response.data]);
+  //     form.reset();
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const userMessage: Chat;
+      const userMessage: ChatCompletionRequestMessage = {
+        role: "user",
+        content: values.prompt,
+      };
+      const newMessages = [...messages, userMessage];
+
+      const response = await axios.post("/api/conversation", {
+        messages: newMessages,
+      });
+      setMessages((current) => [...current, userMessage, response.data]);
+
+      form.reset();
     } catch (error: any) {
+      // Add paid version modal
       console.log(error);
     } finally {
       router.refresh();
@@ -77,7 +105,13 @@ const ConversationPage = () => {
             </form>
           </Form>
         </div>
-        <div className="space-y-4 mt-4">Report Content</div>
+        <div className="space-y-4 mt-4">
+          <div className="flex flex-col-reverse gap-y-4 ">
+            {messages.map((message) => (
+              <div key={message.content}>{message.content}</div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
